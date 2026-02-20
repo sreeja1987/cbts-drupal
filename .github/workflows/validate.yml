@@ -1,0 +1,29 @@
+name: "Code Validation"
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2, phpcs
+
+      - name: Validate Composer
+        run: composer validate --no-check-all
+
+      - name: PHP Lint
+        run: find . -name "*.php" -type f -print0 | xargs -0 -n 1 -P 4 php -l
+
+      - name: Check Drupal Coding Standards
+        # This checks your custom theme folder specifically
+        run: |
+          phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md,yml web/themes/custom
