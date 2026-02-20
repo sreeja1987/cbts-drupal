@@ -26,4 +26,4 @@ jobs:
       - name: Check Drupal Coding Standards
         # This checks your custom theme folder specifically
         run: |
-          phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md,yml web/themes/custom
+          ./vendor/bin/phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md,yml web/themes/custom web/modules/custom
