@@ -1,0 +1,19 @@
+name: Mirror to Pantheon
+on:
+  push:
+    branches:
+      - master # Ensure this matches your branch name (master or main)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Push to Pantheon
+        uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url: ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git
+          ssh_private_key: ${{ secrets.PANTHEON_SSH_KEY }}
