@@ -15,13 +15,5 @@ jobs:
       - name: Push to Pantheon
         uses: pixta-dev/repository-mirroring-action@v1
         with:
-          # Use the full SSH URL including port 2222
-          target_repo_url: ssh://git@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git
-          # Ensure this matches the secret name you created in GitHub
+          target_repo_url: ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git
           ssh_private_key: ${{ secrets.PANTHEON_SSH_KEY }}
-          # Force SSH to accept Pantheon's RSA key type
-          ssh_config: |
-            Host *.drush.in
-              StrictHostKeyChecking no
-              PubkeyAcceptedAlgorithms +ssh-rsa
-              HostkeyAlgorithms +ssh-rsa
