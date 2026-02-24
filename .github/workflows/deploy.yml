@@ -11,7 +11,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.PANTHEON_SSH_KEY }}
+          config: |
+            Host *.drush.in
+              StrictHostKeyChecking no
       - name: Push to Pantheon
         uses: pixta-dev/repository-mirroring-action@v1
         with:
