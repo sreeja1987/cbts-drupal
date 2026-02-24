@@ -2,7 +2,7 @@ name: Mirror to Pantheon
 on:
   push:
     branches:
-      - dev # Ensure this matches your branch name
+      - dev
 
 jobs:
   deploy:
@@ -10,23 +10,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: Install SSH Key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.PANTHEON_SSH_KEY }}
-          known_hosts: "placeholder"
-          config: |
-            Host *.drush.in
-              StrictHostKeyChecking no
-              PubkeyAcceptedAlgorithms +ssh-rsa
-              HostkeyAlgorithms +ssh-rsa
-              Port 2222
+          fetch-depth: 0 # Required for mirroring to get all history
+
       - name: Push to Pantheon
         uses: pixta-dev/repository-mirroring-action@v1
         with:
-          target_repo_url: ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git
+          # Use the full SSH URL including port 2222
+          target_repo_url: ssh://git@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git
+          # Ensure this matches the secret name you created in GitHub
           ssh_private_key: ${{ secrets.PANTHEON_SSH_KEY }}
+          # Force SSH to accept Pantheon's RSA key type
           ssh_config: |
             Host *.drush.in
               StrictHostKeyChecking no
