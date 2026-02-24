@@ -2,7 +2,7 @@ name: Mirror to Pantheon
 on:
   push:
     branches:
-      - master # Ensure this matches your branch name (master or main)
+      - dev # Ensure this matches your branch name
 
 jobs:
   deploy:
