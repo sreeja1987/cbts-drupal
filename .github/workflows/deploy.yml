@@ -2,7 +2,8 @@ name: Mirror to Pantheon
 on:
   push:
     branches:
-      - dev
+      - dev      # Triggers when you merge/push to dev
+      - master   # Triggers when you merge/push to master
 
 jobs:
   deploy:
@@ -18,13 +19,14 @@ jobs:
           PANTHEON_SSH_KEY: ${{ secrets.PANTHEON_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          # Saving as id_rsa so Git finds it automatically
           echo "$PANTHEON_SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           
           ssh-keyscan -p 2222 codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in >> ~/.ssh/known_hosts
           
-          # We still need this export because of the RSA algorithm requirement
+          # Force RSA algorithms for compatibility
           export GIT_SSH_COMMAND="ssh -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
           
-          git push --force ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git dev
+          # MAP GITHUB BRANCH TO PANTHEON MASTER
+          # This solves the "invalid branch name 'dev'" error
+          git push --force ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git ${GITHUB_REF_NAME}:master
