@@ -2,11 +2,11 @@ name: Mirror to Pantheon
 on:
   push:
     branches:
-      - dev      # Triggers when you merge/push to dev
-      - master   # Triggers when you merge/push to master
+      - dev
+      - master
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -14,19 +14,54 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Push to Pantheon
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Configure SSH
         env:
           PANTHEON_SSH_KEY: ${{ secrets.PANTHEON_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
           echo "$PANTHEON_SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          
           ssh-keyscan -p 2222 codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in >> ~/.ssh/known_hosts
-          
-          # Force RSA algorithms for compatibility
+
+      - name: Push to Pantheon
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          if [ -d "vendor" ]; then
+            git add -f vendor/
+          fi
+          git commit -m "Build artifacts for Pantheon deployment" --allow-empty
           export GIT_SSH_COMMAND="ssh -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
-          
-          # MAP GITHUB BRANCH TO PANTHEON MASTER
-          # This solves the "invalid branch name 'dev'" error
           git push --force ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git ${GITHUB_REF_NAME}:master
+
+      - name: Install Terminus
+        uses: pantheon-systems/terminus-github-actions@main
+
+      - name: Authenticate Terminus & Run Drupal Updates
+        env:
+          PANTHEON_MACHINE_TOKEN: ${{ secrets.PANTHEON_MACHINE_TOKEN }}
+          SITE_NAME: ${{ secrets.PANTHEON_SITE_NAME }}
+        run: |
+          # 1. Login to Pantheon
+          terminus auth:login --machine-token=${PANTHEON_MACHINE_TOKEN}
+          
+          # 2. Clear Cache
+          terminus drush ${SITE_NAME}.dev -- cr
+          
+          # 3. Run Database Updates
+          terminus drush ${SITE_NAME}.dev -- updb -y
+          
+          # 4. Import Configuration
+          terminus drush ${SITE_NAME}.dev -- cim -y
+          
+          # 5. Final Cache Clear
+          terminus drush ${SITE_NAME}.dev -- cr
