@@ -33,14 +33,14 @@ jobs:
           # Replace the host below with your specific Pantheon site host if different
           ssh-keyscan -p 2222 codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in >> ~/.ssh/known_hosts
 
-      - name: Push to Pantheon
-        run: |
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "GitHub Actions"
-          git add -f vendor/
-          git commit -m "Build artifacts for Pantheon" --allow-empty
-          export GIT_SSH_COMMAND="ssh -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
-          git push --force ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git ${GITHUB_REF_NAME}:master
+      # - name: Push to Pantheon
+      #   run: |
+      #     git config --global user.email "github-actions@github.com"
+      #     git config --global user.name "GitHub Actions"
+      #     git add -f vendor/
+      #     git commit -m "Build artifacts for Pantheon" --allow-empty
+      #     export GIT_SSH_COMMAND="ssh -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
+      #     git push --force ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git ${GITHUB_REF_NAME}:master
 
       - name: Install & Authenticate Terminus
         uses: pantheon-systems/terminus-github-actions@main
