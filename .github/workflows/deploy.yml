@@ -2,7 +2,7 @@ name: Mirror to Pantheon
 on:
   push:
     branches:
-      - dev
+      - master
 
 jobs:
   deploy:
@@ -27,4 +27,4 @@ jobs:
           # We still need this export because of the RSA algorithm requirement
           export GIT_SSH_COMMAND="ssh -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
           
-          git push --force ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git dev
+          git push --force ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git dev:master
