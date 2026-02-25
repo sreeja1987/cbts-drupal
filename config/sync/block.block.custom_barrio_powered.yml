@@ -1,0 +1,22 @@
+uuid: 4b5df95d-5fc9-482c-931e-5eb91740316f
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - custom_barrio
+_core:
+  default_config_hash: eYL19CLDyinGTWYQfBD1DswWzglEotE_kHnHx3AxTXM
+id: custom_barrio_powered
+theme: custom_barrio
+region: top_header
+weight: 0
+provider: null
+plugin: system_powered_by_block
+settings:
+  id: system_powered_by_block
+  label: 'Powered by Drupal'
+  label_display: '0'
+  provider: system
+visibility: {  }

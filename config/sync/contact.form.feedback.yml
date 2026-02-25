@@ -1,0 +1,14 @@
+uuid: 9fbe7a1b-0400-4609-8206-1725ea829664
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: vymHlgJy26BuI5GGj9-IXjwR3dRC5C0tij4BpWJnoqw
+id: feedback
+label: 'Website feedback'
+recipients:
+  - SREEJA.MUTHUKUMAR@GMAIL.COM
+reply: ''
+weight: 0
+message: 'Your message has been sent.'
+redirect: ''
