@@ -20,7 +20,7 @@ jobs:
           php-version: '8.2'
           tools: composer
 
-      - name: Install Composer Dependencies
+      - name: Install Dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction
 
       - name: Configure SSH
@@ -30,35 +30,27 @@ jobs:
           mkdir -p ~/.ssh
           echo "$PANTHEON_SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          # Replace the host below with your specific Pantheon site host if different
           ssh-keyscan -p 2222 codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in >> ~/.ssh/known_hosts
 
-      - name: Push to Pantheon
-        run: |
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "GitHub Actions"
-          if [ -d "vendor" ]; then
-            git add -f vendor/
-          fi
-          git commit -m "Build artifacts for Pantheon deployment" --allow-empty
-          export GIT_SSH_COMMAND="ssh -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
-          git push --force ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git ${GITHUB_REF_NAME}:master
+      # - name: Push to Pantheon
+      #   run: |
+      #     git config --global user.email "github-actions@github.com"
+      #     git config --global user.name "GitHub Actions"
+      #     git add -f vendor/
+      #     git commit -m "Build artifacts for Pantheon" --allow-empty
+      #     export GIT_SSH_COMMAND="ssh -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
+      #     git push --force ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git ${GITHUB_REF_NAME}:master
 
-      - name: Install Terminus
+      - name: Install & Authenticate Terminus
         uses: pantheon-systems/terminus-github-actions@main
+        with:
+          pantheon-machine-token: ${{ secrets.PANTHEON_MACHINE_TOKEN }}
 
-      - name: Authenticate Terminus & Run Drupal Updates
+      - name: Run Drupal Updates
         env:
-          PANTHEON_MACHINE_TOKEN: ${{ secrets.PANTHEON_MACHINE_TOKEN }}
-          PANTHEON_EMAIL: ${{ secrets.PANTHEON_EMAIL }} # Add your Pantheon email to Secrets
           SITE_NAME: ${{ secrets.PANTHEON_SITE_NAME }}
         run: |
-          # Login using both token and email to ensure User ID is mapped
-          terminus auth:login --machine-token=${PANTHEON_MACHINE_TOKEN} --email=${PANTHEON_EMAIL}
-          
-          # Verify who you are logged in as
-          terminus auth:whoami
-          
-          # Run the Drupal commands
           terminus drush ${SITE_NAME}.dev -- cr
           terminus drush ${SITE_NAME}.dev -- updb -y
           terminus drush ${SITE_NAME}.dev -- cim -y
