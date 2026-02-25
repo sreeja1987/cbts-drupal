@@ -2,7 +2,7 @@ name: Mirror to Pantheon
 on:
   push:
     branches:
-      - dev  # Change this to 'dev' to match your working branch
+      - dev
 
 jobs:
   deploy:
@@ -18,12 +18,13 @@ jobs:
           PANTHEON_SSH_KEY: ${{ secrets.PANTHEON_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "$PANTHEON_SSH_KEY" > ~/.ssh/pantheon_key
-          chmod 600 ~/.ssh/pantheon_key
+          # Saving as id_rsa so Git finds it automatically
+          echo "$PANTHEON_SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
           
           ssh-keyscan -p 2222 codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in >> ~/.ssh/known_hosts
           
-          export GIT_SSH_COMMAND="ssh -i ~/.ssh/pantheon_key -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
-          ssh-keygen -l -f ~/.ssh/pantheon_key
-          # This pushes your local 'dev' branch to Pantheon's 'dev' environment
+          # We still need this export because of the RSA algorithm requirement
+          export GIT_SSH_COMMAND="ssh -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
+          
           git push --force ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git dev
