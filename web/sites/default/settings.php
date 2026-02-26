@@ -21,7 +21,6 @@ $settings['container_yamls'][] = __DIR__ . '/services.yml';
 if (file_exists(__DIR__ . '/settings.pantheon.php')) {
   include __DIR__ . "/settings.pantheon.php";
 }
-$settings['config_sync_directory'] = '../config/sync';
 /**
  * Configure the Config Sync Directory.
  * For Pantheon, this must be defined AFTER settings.pantheon.php.
@@ -29,6 +28,10 @@ $settings['config_sync_directory'] = '../config/sync';
 if (isset($app_root)) {
   // If in /web/sites/default, this points to /config/sync at the repo root.
   $settings['config_sync_directory'] = dirname($app_root) . '/config/sync';
+}
+else {
+  // Fallback for environments where $app_root might not be set in scope
+  $settings['config_sync_directory'] = '../config/sync';
 }
 
 /**
