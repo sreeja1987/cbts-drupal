@@ -42,16 +42,16 @@ jobs:
       #     export GIT_SSH_COMMAND="ssh -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
       #     git push --force ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git ${GITHUB_REF_NAME}:master
 
-      # - name: Install & Authenticate Terminus
-      #   uses: pantheon-systems/terminus-github-actions@main
-      #   with:
-      #     pantheon-machine-token: ${{ secrets.PANTHEON_MACHINE_TOKEN }}
+      - name: Install & Authenticate Terminus
+        uses: pantheon-systems/terminus-github-actions@main
+        with:
+          pantheon-machine-token: ${{ secrets.PANTHEON_MACHINE_TOKEN }}
 
-      # - name: Run Drupal Updates
-      #   env:
-      #     SITE_NAME: ${{ secrets.PANTHEON_SITE_NAME }}
-      #   run: |
-      #     terminus drush ${SITE_NAME}.dev -- cr
-      #     terminus drush ${SITE_NAME}.dev -- updb -y
-      #     terminus drush ${SITE_NAME}.dev -- cim -y
-      #     terminus drush ${SITE_NAME}.dev -- cr
+      - name: Run Drupal Updates
+        env:
+          SITE_NAME: ${{ secrets.PANTHEON_SITE_NAME }}
+        run: |
+          terminus drush ${SITE_NAME}.dev -- cr
+          terminus drush ${SITE_NAME}.dev -- updb -y
+          terminus drush ${SITE_NAME}.dev -- cim -y
+          terminus drush ${SITE_NAME}.dev -- cr
