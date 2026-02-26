@@ -2,11 +2,11 @@ name: Mirror to Pantheon
 on:
   push:
     branches:
-      - dev      # Triggers when you merge/push to dev
-      - master   # Triggers when you merge/push to master
+      - dev
+      - master
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -14,19 +14,44 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Push to Pantheon
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Install Dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Configure SSH
         env:
           PANTHEON_SSH_KEY: ${{ secrets.PANTHEON_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
           echo "$PANTHEON_SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          
+          # Replace the host below with your specific Pantheon site host if different
           ssh-keyscan -p 2222 codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in >> ~/.ssh/known_hosts
-          
-          # Force RSA algorithms for compatibility
-          export GIT_SSH_COMMAND="ssh -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
-          
-          # MAP GITHUB BRANCH TO PANTHEON MASTER
-          # This solves the "invalid branch name 'dev'" error
-          git push --force ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git ${GITHUB_REF_NAME}:master
+
+      # - name: Push to Pantheon
+      #   run: |
+      #     git config --global user.email "github-actions@github.com"
+      #     git config --global user.name "GitHub Actions"
+      #     git add -f vendor/
+      #     git commit -m "Build artifacts for Pantheon" --allow-empty
+      #     export GIT_SSH_COMMAND="ssh -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
+      #     git push --force ssh://codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925@codeserver.dev.a800e0e6-2a59-4f50-ae1b-490939258925.drush.in:2222/~/repository.git ${GITHUB_REF_NAME}:master
+
+      # - name: Install & Authenticate Terminus
+      #   uses: pantheon-systems/terminus-github-actions@main
+      #   with:
+      #     pantheon-machine-token: ${{ secrets.PANTHEON_MACHINE_TOKEN }}
+
+      # - name: Run Drupal Updates
+      #   env:
+      #     SITE_NAME: ${{ secrets.PANTHEON_SITE_NAME }}
+      #   run: |
+      #     terminus drush ${SITE_NAME}.dev -- cr
+      #     terminus drush ${SITE_NAME}.dev -- updb -y
+      #     terminus drush ${SITE_NAME}.dev -- cim -y
+      #     terminus drush ${SITE_NAME}.dev -- cr

@@ -1,0 +1,23 @@
+uuid: 24983db0-61c9-42b9-9122-727eb9bf5f57
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+  theme:
+    - custom_barrio
+_core:
+  default_config_hash: 0gq3VPg-_UM69FCCWurLFIrrnIjC2HLKhwo9iQNtcUo
+id: custom_barrio_syndicate
+theme: custom_barrio
+region: top_header
+weight: 0
+provider: null
+plugin: node_syndicate_block
+settings:
+  id: node_syndicate_block
+  label: 'RSS feed'
+  label_display: '0'
+  provider: node
+  block_count: 10
+visibility: {  }
