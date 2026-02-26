@@ -5,16 +5,6 @@
  */
 $settings['container_yamls'][] = __DIR__ . '/services.yml';
 
-/**
- * Include the Pantheon-specific settings file.
- *
- * n.b. The settings.pantheon.php file makes some changes
- *      that affect all environments that this site
- *      exists in.  Always include this file, even in
- *      a local development environment, to ensure that
- *      the site settings remain consistent.
- */
-include __DIR__ . "/settings.pantheon.php";
 
 /**
  * Skipping permissions hardening will make scaffolding
@@ -26,10 +16,33 @@ include __DIR__ . "/settings.pantheon.php";
 // $settings['skip_permissions_hardening'] = TRUE;
 
 /**
- * If there is a local settings file, then include it
+ * Include the Pantheon-specific settings file.
+ */
+if (file_exists(__DIR__ . '/settings.pantheon.php')) {
+  include __DIR__ . "/settings.pantheon.php";
+}
+
+/**
+ * Configure the Config Sync Directory.
+ * For Pantheon, this must be defined AFTER settings.pantheon.php.
+ */
+if (isset($app_root)) {
+  // If in /web/sites/default, this points to /config/sync at the repo root.
+  $settings['config_sync_directory'] = dirname($app_root) . '/config/sync';
+}
+
+/**
+ * If there is a local settings file, then include it.
  */
 $local_settings = __DIR__ . "/settings.local.php";
 if (file_exists($local_settings)) {
   include $local_settings;
 }
-$settings['config_sync_directory'] = $app_root . '/../config/sync';
+
+/**
+ * DDEV-specific settings.
+ */
+$ddev_settings = __DIR__ . '/settings.ddev.php';
+if (getenv('IS_DDEV_PROJECT') == 'true' && is_readable($ddev_settings)) {
+  require $ddev_settings;
+}
