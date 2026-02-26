@@ -21,7 +21,7 @@ $settings['container_yamls'][] = __DIR__ . '/services.yml';
 if (file_exists(__DIR__ . '/settings.pantheon.php')) {
   include __DIR__ . "/settings.pantheon.php";
 }
-
+$settings['config_sync_directory'] = '../config/sync';
 /**
  * Configure the Config Sync Directory.
  * For Pantheon, this must be defined AFTER settings.pantheon.php.
